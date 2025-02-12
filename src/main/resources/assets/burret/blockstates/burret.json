@@ -1,0 +1,19 @@
+{
+    "variants": {
+        "facing=north": {
+            "model": "burret:block/burret"
+        },
+        "facing=east": {
+            "model": "burret:block/burret",
+            "y": 90
+        },
+        "facing=south": {
+            "model": "burret:block/burret",
+            "y": 180
+        },
+        "facing=west": {
+            "model": "burret:block/burret",
+            "y": 270
+        }
+    }
+}

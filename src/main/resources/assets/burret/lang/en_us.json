@@ -1,0 +1,10 @@
+{
+  "itemGroup.burret": "Burret",
+
+  "block.burret.burret": "Burret",
+
+  "item.burret.ballet": "Ballet",
+
+  "key.cheaks.status_switch": "Enable / Disable Burret",
+  "message.burret.status": "Burret is now %s!"
+}
