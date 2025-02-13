@@ -110,9 +110,12 @@ public class BurretBlockEntity extends BlockEntity {
             return;
         }
 
+//        if (!burretEntity.getData(AttachmentRegistry.STATUS)) {
+//            return;
+//        }
+
         for (Entity entity : entities) {
-            if ((entity instanceof ServerPlayer player && !player.getData(AttachmentRegistry.STATUS))
-                    && !burretEntity.getData(AttachmentRegistry.STATUS)) {
+            if (entity instanceof Player player && !player.getData(AttachmentRegistry.STATUS)) {
                 break;
             }
 
