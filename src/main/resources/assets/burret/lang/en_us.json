@@ -9,5 +9,9 @@
   "key.cheaks.mode_switch": "Switch the Burret Mode",
   "key.cheaks.status_switch": "Enable / Disable Burret",
 
-  "message.burret.status": "Burret is now %s!"
+  "message.burret.projectile": "Projectiles available: %s",
+  "message.burret.radius": "Current radius: %s",
+  "message.burret.status": "Burret is now %s!",
+  "message.burret.status_on": "on",
+  "message.burret.status_off": "off"
 }

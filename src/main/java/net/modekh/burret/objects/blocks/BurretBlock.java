@@ -2,6 +2,7 @@ package net.modekh.burret.objects.blocks;
 
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -29,6 +30,11 @@ public class BurretBlock extends HorizontalDirectionalBlock implements EntityBlo
                 .strength(1.4F, 6.0F)
                 .noOcclusion()
                 .sound(SoundType.AMETHYST));
+    }
+
+    @Override
+    protected @Nullable MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
+        return super.getMenuProvider(state, level, pos);
     }
 
     @Override
@@ -72,10 +78,15 @@ public class BurretBlock extends HorizontalDirectionalBlock implements EntityBlo
         if (!state.is(newState.getBlock())
                 && level.getBlockEntity(pos) instanceof BurretBlockEntity burretEntity) {
             ItemStack stack = burretEntity.getBurretStack();
+            ItemStack catalystStack = burretEntity.getCatalystStack();
 
             if (stack != null && !stack.isEmpty()) {
                 level.addFreshEntity(new ItemEntity(level, pos.getX(), pos.getY(), pos.getZ(), stack));
                 burretEntity.setBurretStack(ItemStack.EMPTY);
+            }
+
+            if (catalystStack != null && !catalystStack.isEmpty()) {
+                burretEntity.setCatalystStack(ItemStack.EMPTY);
             }
         }
 

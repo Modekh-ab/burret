@@ -1,0 +1,17 @@
+{
+  "itemGroup.burret": "Пульверель",
+
+  "block.burret.burret": "Пульверель",
+
+  "item.burret.ballet": "Шнаряд",
+
+  "key.cheaks.menu_open": "Открыть меню пульверели",
+  "key.cheaks.mode_switch": "Переключить режим пульверели",
+  "key.cheaks.status_switch": "Выкл. / откл. пульверель",
+
+  "message.burret.projectile": "Доступно снарядов: %s",
+  "message.burret.radius": "Текущий радиус: %s",
+  "message.burret.status": "Пульверель %s!",
+  "message.burret.status_on": "включена",
+  "message.burret.status_off": "отключена"
+}

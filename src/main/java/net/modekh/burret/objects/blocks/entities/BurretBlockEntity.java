@@ -1,5 +1,6 @@
 package net.modekh.burret.objects.blocks.entities;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -7,6 +8,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.monster.Monster;
@@ -31,9 +33,18 @@ import java.util.List;
 import java.util.Map;
 
 public class BurretBlockEntity extends BlockEntity {
+//    public BlockCapabilityCache<IItemHandler, @Nullable Direction> capCache;
+//
+//    private final ItemStackHandler stackHandler = new ItemStackHandler(2) {};
+//
+//    public Lazy<IItemHandler> lazyStackHandler = Lazy.of(() -> stackHandler);
+
     public static ItemStack burretStack = ItemStack.EMPTY;
+    public static ItemStack catalystStack = ItemStack.EMPTY;
 
     public int ticks = 0;
+    private int delay = 20;
+    private float radius = 8.0F;
 
     private static final Color BURRET_COLOR = new Color(129, 66, 66, 111);
     private static final Color BURRET_AREA_COLOR = new Color(255, 205, 7);
@@ -47,22 +58,25 @@ public class BurretBlockEntity extends BlockEntity {
             return;
         }
 
-        float radius = 8.0F;
-
-        if (burretEntity.getData(AttachmentRegistry.STATUS)) {
-            ParticleUtils.drawCircle(level,
-                    ParticleUtils.drawSpark(BURRET_AREA_COLOR, 0.46F, 10, 0.76F),
-                    pos.getBottomCenter(), radius, 0.25F
-            );
+        if (!catalystStack.isEmpty() && burretEntity.radius <= 16.0F) {
+            burretEntity.radius += 0.5F;
+            catalystStack.shrink(1);
         }
 
-        // enable / disable the burret by key
+        // enable / disable the curret by key
         if (KeyRegistry.KEY_STATUS_SWITCH.consumeClick()) {
             boolean newStatus = !burretEntity.getData(AttachmentRegistry.STATUS);
 
             burretEntity.setData(AttachmentRegistry.STATUS, newStatus);
 
             PacketDistributor.sendToServer(new UpdateStatusSwitchPacket(newStatus));
+        }
+
+        if (burretEntity.getData(AttachmentRegistry.STATUS)) {
+            ParticleUtils.drawCircle(level,
+                    ParticleUtils.drawSpark(BURRET_AREA_COLOR, 0.46F, 1000, 0.76F),
+                    pos.getBottomCenter(), burretEntity.radius, 0.25F
+            );
         }
 
         // shooting logic
@@ -75,7 +89,7 @@ public class BurretBlockEntity extends BlockEntity {
             return;
         }
 
-        if (burretEntity.ticks == 0 || burretEntity.ticks % 20 != 0) {
+        if (burretEntity.ticks == 0 || burretEntity.ticks % burretEntity.getDelay() != 0) {
             level.addParticle(ParticleUtils.drawSpark(BURRET_COLOR, 0.56F, 500, 0.76F),
                     pos.getX() + 0.5F, pos.getY() + 1.1F, pos.getZ() + 0.5F,
                     0.0D, 0.1D, 0.0D);
@@ -83,7 +97,7 @@ public class BurretBlockEntity extends BlockEntity {
             return;
         }
 
-        AABB sphereArea = new AABB(pos).inflate(radius);
+        AABB sphereArea = new AABB(pos).inflate(burretEntity.radius);
         List<Entity> entities = level.getEntities(null, sphereArea);
 
         if (entities.isEmpty()) {
@@ -97,11 +111,12 @@ public class BurretBlockEntity extends BlockEntity {
         }
 
         for (Entity entity : entities) {
-            if (entity instanceof Player player && !player.getData(AttachmentRegistry.STATUS)) {
+            if ((entity instanceof ServerPlayer player && !player.getData(AttachmentRegistry.STATUS))
+                    && !burretEntity.getData(AttachmentRegistry.STATUS)) {
                 break;
             }
 
-            if (entity.distanceTo(entity) <= radius * radius) {
+            if (entity.distanceTo(entity) <= Math.pow(burretEntity.radius, 2)) {
                 if (entity instanceof Player player) {
                     projectile.setOwner(player);
                 }
@@ -117,7 +132,7 @@ public class BurretBlockEntity extends BlockEntity {
 
                         projectile.setPos(pos.getCenter().add(0.0F, 1.4F, 0.0F));
                         projectile.setDeltaMovement(projectile.getDeltaMovement()
-                                .add(motion.x(), -0.5F, motion.z()));
+                                .add(motion.x(), (projectile instanceof Fireball) ? -1.0F : -0.4F, motion.z()));
 
 //                        PacketDistributor.sendToPlayersTrackingEntity(projectile,
 //                                new TargetMonsterPacket(projectile.getId(), entity.getId()));
@@ -134,6 +149,13 @@ public class BurretBlockEntity extends BlockEntity {
     protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
         super.saveAdditional(tag, registries);
 
+//        if (stackHandler != null) {
+//            tag.put("stack", stackHandler.serializeNBT(registries));
+//        }
+
+        tag.putInt("delay", this.getDelay());
+        tag.putFloat("radius", this.radius);
+
         if (burretStack != null && !burretStack.isEmpty()) {
             tag.put("stack", burretStack.save(registries, new CompoundTag()));
         }
@@ -142,6 +164,10 @@ public class BurretBlockEntity extends BlockEntity {
     @Override
     protected void loadAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
         super.loadAdditional(tag, registries);
+
+//        stackHandler.deserializeNBT(registries, tag.getCompound("stack"));
+        setDelay(tag.getInt("delay"));
+        setRadius(tag.getFloat("radius"));
 
         burretStack = ItemStack.parseOptional(registries, tag.getCompound("stack"));
     }
@@ -160,6 +186,39 @@ public class BurretBlockEntity extends BlockEntity {
         return super.getUpdateTag(registries);
     }
 
+    // container
+
+//    @Override
+//    public void onLoad() {
+//        super.onLoad();
+//
+//        lazyStackHandler = Lazy.of(() -> stackHandler);
+//
+//        if (getLevel() instanceof ServerLevel serverLevel) {
+//            this.capCache = BlockCapabilityCache.create(
+//                    Capabilities.ItemHandler.BLOCK,
+//                    serverLevel, this.getBlockPos(), Direction.NORTH
+//            );
+//        }
+//    }
+//
+//    @Override
+//    public void invalidateCapabilities() {
+//        super.invalidateCapabilities();
+//        lazyStackHandler.invalidate();
+//    }
+//
+//    @Override
+//    public @NotNull Component getDisplayName() {
+//        return Component.translatable("block.burret.burret");
+//    }
+//
+//    @Override
+//    public @Nullable AbstractContainerMenu createMenu(int containerId,
+//                                                      @NotNull Inventory playerInventory, @NotNull Player player) {
+//        return new BurretMenu(containerId, playerInventory, this);
+//    }
+
     // utils
 
     public ItemStack getBurretStack() {
@@ -170,11 +229,20 @@ public class BurretBlockEntity extends BlockEntity {
         BurretBlockEntity.burretStack = burretStack;
     }
 
+    public ItemStack getCatalystStack() {
+        return catalystStack;
+    }
+
+    public void setCatalystStack(ItemStack catalystStack) {
+        BurretBlockEntity.catalystStack = catalystStack;
+    }
+
     @Nullable
     private static Projectile getProjectile(Level level) {
         Map<Item, Projectile> projectilesMap = Map.of(
                 Items.ARROW, new Arrow(EntityType.ARROW, level),
                 Items.SPECTRAL_ARROW, new SpectralArrow(EntityType.SPECTRAL_ARROW, level),
+                Items.TIPPED_ARROW, new Arrow(EntityType.ARROW, level),
                 Items.EGG, new ThrownEgg(EntityType.EGG, level),
                 Items.FIRE_CHARGE, new SmallFireball(EntityType.SMALL_FIREBALL, level),
                 Items.FIREWORK_ROCKET, new FireworkRocketEntity(EntityType.FIREWORK_ROCKET, level),
@@ -185,5 +253,21 @@ public class BurretBlockEntity extends BlockEntity {
         );
 
         return projectilesMap.get(burretStack.getItem());
+    }
+
+    private int getDelay() {
+        return delay;
+    }
+
+    public void setDelay(int newDelay) {
+        this.delay = newDelay;
+    }
+
+    public float getRadius() {
+        return radius;
+    }
+
+    public void setRadius(float newRadius) {
+        this.radius = newRadius;
     }
 }

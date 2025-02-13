@@ -17,7 +17,7 @@ public class NetworkHandler {
         registrar.playToServer(UpdateStatusSwitchPacket.TYPE,
                 UpdateStatusSwitchPacket.STREAM_CODEC, UpdateStatusSwitchPacket::handle);
 
-//        registrar.playToClient(TargetMonsterPacket.TYPE,
-//                TargetMonsterPacket.STREAM_CODEC, TargetMonsterPacket::handle);
+        registrar.playToClient(TargetMonsterPacket.TYPE,
+                TargetMonsterPacket.STREAM_CODEC, TargetMonsterPacket::handle);
     }
 }

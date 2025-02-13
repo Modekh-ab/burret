@@ -11,6 +11,11 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 public class ModClientEvents {
     @EventBusSubscriber(modid = Reference.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static class BusClientEvents {
+//        @SubscribeEvent
+//        public static void onMenuScreensRegister(RegisterMenuScreensEvent event) {
+//            event.register(MenuTypesRegistry.BURRET_MENU.get(), BurretScreen::new);
+//        }
+
         @SubscribeEvent
         public static void onEntitiesRender(EntityRenderersEvent.RegisterRenderers event) {
             event.registerBlockEntityRenderer(BlockRegistry.BURRET_ENTITY.get(), BurretBlockEntityRenderer::new);

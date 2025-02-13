@@ -42,8 +42,12 @@ public record UpdateStatusSwitchPacket(boolean status) implements CustomPacketPa
             serverPlayer.setData(AttachmentRegistry.STATUS, status);
 
             serverPlayer.displayClientMessage(Component.translatable("message.burret.status",
-                    status ? "on" : "off").withStyle(ChatFormatting.GOLD), true);
+                            status ? getTranslatable("status_on") : getTranslatable("status_off"))
+                    .withStyle(ChatFormatting.GOLD), true);
         });
+    }
 
+    private static Component getTranslatable(String message) {
+        return Component.translatable("message.burret." + message);
     }
 }
