@@ -1,14 +1,11 @@
 package net.modekh.burret.objects.blocks.entities;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.monster.Monster;
@@ -20,7 +17,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.modekh.burret.network.packets.client.TargetMonsterPacket;
 import net.modekh.burret.network.packets.server.UpdateStatusSwitchPacket;
 import net.modekh.burret.registry.*;
 import net.modekh.burret.utils.ParticleUtils;
@@ -63,7 +59,7 @@ public class BurretBlockEntity extends BlockEntity {
             catalystStack.shrink(1);
         }
 
-        // enable / disable the curret by key
+        // enable / disable the curret by the key
         if (KeyRegistry.KEY_STATUS_SWITCH.consumeClick()) {
             boolean newStatus = !burretEntity.getData(AttachmentRegistry.STATUS);
 
@@ -110,14 +106,14 @@ public class BurretBlockEntity extends BlockEntity {
             return;
         }
 
-//        if (!burretEntity.getData(AttachmentRegistry.STATUS)) {
-//            return;
-//        }
+        if (!burretEntity.getData(AttachmentRegistry.STATUS)) {
+            return;
+        }
 
         for (Entity entity : entities) {
-            if (entity instanceof Player player && !player.getData(AttachmentRegistry.STATUS)) {
-                break;
-            }
+//            if (entity instanceof Player player && !player.getData(AttachmentRegistry.STATUS)) {
+//                break;
+//            }
 
             if (entity.distanceTo(entity) <= Math.pow(burretEntity.radius, 2)) {
                 if (entity instanceof Player player) {
@@ -130,19 +126,28 @@ public class BurretBlockEntity extends BlockEntity {
                         return;
                     }
 
-                    if (level instanceof ServerLevel) {
-                        Vec3 motion = entity.position().subtract(pos.getCenter());
+//                    if (level instanceof ServerLevel) {
+//                        Vec3 motion = entity.position().subtract(pos.getCenter());
+//
+//                        projectile.setPos(pos.getCenter().add(0.0F, 1.4F, 0.0F));
+//                        projectile.setDeltaMovement(projectile.getDeltaMovement()
+//                                .add(motion.x(), (projectile instanceof Fireball) ? -1.0F : -0.4F, motion.z()));
+//
+////                        PacketDistributor.sendToPlayersTrackingEntity(projectile,
+////                                new TargetMonsterPacket(projectile.getId(), entity.getId()));
+//
+//                        level.addFreshEntity(projectile);
+//                        stack.shrink(1);
+//                    }
 
-                        projectile.setPos(pos.getCenter().add(0.0F, 1.4F, 0.0F));
-                        projectile.setDeltaMovement(projectile.getDeltaMovement()
-                                .add(motion.x(), (projectile instanceof Fireball) ? -1.0F : -0.4F, motion.z()));
+                    Vec3 motion = entity.position().subtract(pos.getCenter());
 
-//                        PacketDistributor.sendToPlayersTrackingEntity(projectile,
-//                                new TargetMonsterPacket(projectile.getId(), entity.getId()));
+                    projectile.setPos(pos.getCenter().add(0.0F, 1.4F, 0.0F));
+                    projectile.setDeltaMovement(projectile.getDeltaMovement()
+                            .add(motion.x(), (projectile instanceof Fireball) ? -1.0F : -0.4F, motion.z()));
 
-                        level.addFreshEntity(projectile);
-                        stack.shrink(1);
-                    }
+                    level.addFreshEntity(projectile);
+                    stack.shrink(1);
                 }
             }
         }
