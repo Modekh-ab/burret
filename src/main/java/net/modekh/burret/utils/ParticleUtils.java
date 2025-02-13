@@ -15,8 +15,6 @@ import net.modekh.burret.client.particles.SparkParticle;
 import java.awt.*;
 
 public class ParticleUtils {
-    private final static Color BURRET_COLOR = new Color(0,0, 0);
-
     public static void drawCircle(Level level, ParticleOptions spark, Vec3 center, float radius, float gap) {
         int sparksNum = (int) Math.ceil((2 * Math.PI * radius) / gap);
         double angleIncrement = (2 * Math.PI) / sparksNum;
@@ -44,9 +42,9 @@ public class ParticleUtils {
                     if (!foundBlock) {
                         y--;
                         continue;
-                    } else {
-                        break;
                     }
+
+                    break;
                 } else {
                     foundBlock = true;
                 }
@@ -57,27 +55,23 @@ public class ParticleUtils {
                     if (border.maxY >= 1.0) {
                         y++;
                         continue;
-                    } else {
-                        break;
                     }
+
+                    break;
                 }
 
                 y += gap;
             }
 
             if (counter < counterMax) {
-                level.addParticle(spark, x, y + 0.1, z, 0, 0, 0);
+                level.addParticle(spark, x, y + 0.15, z, 0, 0, 0);
             }
         }
     }
 
     public static ParticleOptions drawSpark(Color color, float diameter, int lifetime, float scaleModifier) {
-        return new SparkParticle.Options(SparkParticle.Constructor.builder()
-                .color(color.getRGB())
-                .diameter(diameter)
-                .lifetime(lifetime)
-                .scaleModifier(scaleModifier)
-                .roll(0.5F)
-                .build());
+        return new SparkParticle.Options(
+                color.getRGB(), 0.46F, 100, 0.6F, 0.76F
+        );
     }
 }

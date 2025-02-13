@@ -22,53 +22,56 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.modekh.burret.registry.ParticleRegistry;
 import net.modekh.burret.utils.Reference;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 
-/**
- * Based on particles implementation from <b>Relics</b> mod
- */
+@OnlyIn(Dist.CLIENT)
 public class SparkParticle extends TextureSheetParticle {
-    private final Constructor constructor;
+    private final float scaleModifier;
 
     public SparkParticle(ClientLevel level,
                          double x, double y, double z,
-                         double xSpeed, double ySpeed, double zSpeed, Constructor constructor) {
+                         double xSpeed, double ySpeed, double zSpeed,
+                         int red, int green, int blue, int alpha,
+                         float diameter, int lifetime, float scaleModifier, float roll) {
         super(level, x, y, z, xSpeed, ySpeed, zSpeed);
-
-        setColor(constructor.color.getRed() / 255F,
-                constructor.color.getGreen() / 255F,
-                constructor.color.getBlue() / 255F);
-        setSize(constructor.diameter, constructor.diameter);
-        setAlpha(constructor.color.getAlpha() / 255F);
-        setLifetime(constructor.lifetime);
-
-        this.constructor = constructor;
-        this.quadSize = constructor.diameter;
 
         this.xd = xSpeed; // xD
         this.yd = ySpeed;
         this.zd = zSpeed;
+
+        this.quadSize = diameter;
+        this.lifetime = lifetime;
+        this.scaleModifier = scaleModifier;
+        this.roll = roll;
+
+        setSize(this.quadSize, this.quadSize);
+        setColor(red / 255F, green / 255F, blue / 255F);
+        setAlpha(alpha / 255F);
+        setLifetime(this.lifetime);
     }
 
     @Override
     public void tick() {
-        this.quadSize *= constructor.scaleModifier;
+        this.quadSize *= this.scaleModifier;
 
         xo = x;
         yo = y;
         zo = z;
 
         oRoll = roll;
-        roll += constructor.roll;
+        roll += this.roll;
 
         move(xd, yd, zd);
 
-        if (this.age++ >= this.lifetime)
+        if (this.age++ >= this.lifetime) {
             this.remove();
+        }
     }
 
     @Override
@@ -89,9 +92,7 @@ public class SparkParticle extends TextureSheetParticle {
             RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_PARTICLES);
 
             RenderSystem.enableBlend();
-
             RenderSystem.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
-
             RenderSystem.depthMask(false);
 
             return tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
@@ -102,84 +103,6 @@ public class SparkParticle extends TextureSheetParticle {
             return Reference.MOD_ID + ":spark";
         }
     };
-
-    @lombok.Builder
-    public static class Constructor {
-        @lombok.Builder.Default private Color color = new Color(0xFFFFFFFF, true);
-        @lombok.Builder.Default private float diameter = 1F;
-        @lombok.Builder.Default private float roll = 0F;
-        @lombok.Builder.Default private int lifetime = 20;
-        @lombok.Builder.Default private float scaleModifier = 1F;
-
-        public static class ConstructorBuilder {
-            private Color color;
-
-            public ConstructorBuilder color(int color) {
-                this.color = new Color(color, true);
-
-                return this;
-            }
-        }
-    }
-
-    public static class Options implements ParticleOptions {
-        private final Constructor data;
-
-        private Options(int color, float diameter, int lifetime, float roll, float scaleModifier) {
-            this.data = Constructor.builder()
-                    .color(color)
-                    .diameter(diameter)
-                    .lifetime(lifetime)
-                    .roll(roll)
-                    .scaleModifier(scaleModifier)
-                    .build();
-        }
-
-        public Options(Constructor data) {
-            this.data = data;
-        }
-
-        @Override
-        public @NotNull ParticleType<Options> getType() {
-            return ParticleRegistry.SPARK.get();
-        }
-
-        public static final MapCodec<Options> CODEC = RecordCodecBuilder.mapCodec(
-                instance -> instance.group(
-                        Codec.INT.fieldOf("color").forGetter(options -> options.data.color.getRGB()),
-                        Codec.FLOAT.fieldOf("diameter").forGetter(options -> options.data.diameter),
-                        Codec.INT.fieldOf("lifetime").forGetter(options -> options.data.lifetime),
-                        Codec.FLOAT.fieldOf("roll").forGetter(options -> options.data.roll),
-                        Codec.FLOAT.fieldOf("scaleModifier").forGetter(options -> options.data.scaleModifier)
-                ).apply(instance, Options::new));
-
-        public static final StreamCodec<ByteBuf, Options> STREAM_CODEC = StreamCodec.composite(
-                ByteBufCodecs.INT, options -> options.data.color.getRGB(),
-                ByteBufCodecs.FLOAT, options -> options.data.diameter,
-                ByteBufCodecs.INT, options -> options.data.lifetime,
-                ByteBufCodecs.FLOAT, options -> options.data.roll,
-                ByteBufCodecs.FLOAT, options -> options.data.scaleModifier,
-                Options::new
-        );
-    }
-
-    public static class Provider implements ParticleProvider<Options> {
-        private final SpriteSet spriteSet;
-
-        public Provider(SpriteSet spriteSet) {
-            this.spriteSet = spriteSet;
-        }
-
-        @Override
-        public @Nullable Particle createParticle(Options type, @NotNull ClientLevel level,
-                                                 double x, double y, double z,
-                                                 double xSpeed, double ySpeed, double zSpeed) {
-            SparkParticle spark = new SparkParticle(level, x, y, z, xSpeed, ySpeed, zSpeed, type.data);
-            spark.pickSprite(spriteSet);
-
-            return spark;
-        }
-    }
 
     public static class Type extends ParticleType<Options> {
         public Type() {
@@ -195,5 +118,66 @@ public class SparkParticle extends TextureSheetParticle {
         public @NotNull StreamCodec<? super RegistryFriendlyByteBuf, Options> streamCodec() {
             return Options.STREAM_CODEC;
         }
+    }
+
+    public static class Provider implements ParticleProvider<Options> {
+        private final SpriteSet spriteSet;
+
+        public Provider(SpriteSet spriteSet) {
+            this.spriteSet = spriteSet;
+        }
+
+        @Override
+        public @Nullable Particle createParticle(@NotNull Options type, @NotNull ClientLevel level,
+                                                 double x, double y, double z,
+                                                 double xSpeed, double ySpeed, double zSpeed) {
+            Color color = new Color(type.color);
+
+            SparkParticle spark = new SparkParticle(level, x, y, z, xSpeed, ySpeed, zSpeed,
+                    color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha(),
+                    type.diameter, type.lifetime, type.scaleModifier, type.roll);
+            spark.pickSprite(spriteSet);
+
+            return spark;
+        }
+    }
+
+    public static class Options implements ParticleOptions {
+        private final int color;
+        private final float diameter;
+        private final int lifetime;
+        private final float roll;
+        private final float scaleModifier;
+
+        public Options(int color, float diameter, int lifetime, float roll, float scaleModifier) {
+            this.color = color;
+            this.diameter = diameter;
+            this.lifetime = lifetime;
+            this.roll = roll;
+            this.scaleModifier = scaleModifier;
+        }
+
+        @Override
+        public @NotNull ParticleType<Options> getType() {
+            return ParticleRegistry.SPARK.get();
+        }
+
+        public static final MapCodec<Options> CODEC = RecordCodecBuilder.mapCodec(
+                instance -> instance.group(
+                        Codec.INT.fieldOf("color").forGetter(options -> options.color),
+                        Codec.FLOAT.fieldOf("diameter").forGetter(options -> options.diameter),
+                        Codec.INT.fieldOf("lifetime").forGetter(options -> options.lifetime),
+                        Codec.FLOAT.fieldOf("roll").forGetter(options -> options.roll),
+                        Codec.FLOAT.fieldOf("scaleModifier").forGetter(options -> options.scaleModifier)
+                ).apply(instance, Options::new));
+
+        public static final StreamCodec<ByteBuf, Options> STREAM_CODEC = StreamCodec.composite(
+                ByteBufCodecs.INT, options -> options.color,
+                ByteBufCodecs.FLOAT, options -> options.diameter,
+                ByteBufCodecs.INT, options -> options.lifetime,
+                ByteBufCodecs.FLOAT, options -> options.roll,
+                ByteBufCodecs.FLOAT, options -> options.scaleModifier,
+                Options::new
+        );
     }
 }

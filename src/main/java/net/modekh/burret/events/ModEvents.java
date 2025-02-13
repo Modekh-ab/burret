@@ -1,17 +1,14 @@
 package net.modekh.burret.events;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ProjectileItem;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.modekh.burret.blocks.entities.BurretBlockEntity;
+import net.modekh.burret.objects.blocks.entities.BurretBlockEntity;
 import net.modekh.burret.registry.AttachmentRegistry;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -60,14 +57,13 @@ public class ModEvents {
         level.sendBlockUpdated(pos, prevState, level.getBlockState(pos), 3);
 
         burretEntity.setChanged();
-        player.swing(hand);
     }
 
-//    @SubscribeEvent
-//    public static void onPlayerCloned(PlayerEvent.Clone event) {
-//        if (event.isWasDeath() && event.getOriginal().hasData(AttachmentRegistry.STATUS)) {
-//            event.getEntity().setData(AttachmentRegistry.STATUS,
-//                    event.getOriginal().getData(AttachmentRegistry.STATUS));
-//        }
-//    }
+    @SubscribeEvent
+    public static void onPlayerCloned(PlayerEvent.Clone event) {
+        if (event.isWasDeath() && event.getOriginal().hasData(AttachmentRegistry.STATUS)) {
+            event.getEntity().setData(AttachmentRegistry.STATUS,
+                    event.getOriginal().getData(AttachmentRegistry.STATUS));
+        }
+    }
 }

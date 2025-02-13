@@ -1,5 +1,7 @@
 package net.modekh.burret;
 
+import net.minecraft.server.Services;
+import net.minecraft.world.entity.Entity;
 import net.modekh.burret.registry.*;
 import net.modekh.burret.utils.Reference;
 
@@ -13,12 +15,11 @@ public class Burret {
     public Burret(IEventBus bus) {
         bus.addListener(CreativeTabRegistry::addCreative);
 
-//        NeoForge.EVENT_BUS.register(this);
-
         // registry
         AttachmentRegistry.register(bus);
         BlockRegistry.register(bus);
         ItemRegistry.register(bus);
+//        EntityTypesRegistry.register(bus);
         CreativeTabRegistry.register(bus);
         ParticleRegistry.register(bus);
 

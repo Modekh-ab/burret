@@ -15,7 +15,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
-import net.modekh.burret.blocks.entities.BurretBlockEntity;
+import net.modekh.burret.objects.blocks.entities.BurretBlockEntity;
 import org.jetbrains.annotations.NotNull;
 
 public class BurretBlockEntityRenderer implements BlockEntityRenderer<BurretBlockEntity> {

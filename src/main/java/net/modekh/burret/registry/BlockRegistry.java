@@ -6,14 +6,12 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.modekh.burret.blocks.BurretBlock;
-import net.modekh.burret.blocks.entities.BurretBlockEntity;
+import net.modekh.burret.objects.blocks.BurretBlock;
+import net.modekh.burret.objects.blocks.entities.BurretBlockEntity;
 import net.modekh.burret.utils.Reference;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
-import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 public class BlockRegistry {
     // blocks

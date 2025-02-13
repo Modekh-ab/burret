@@ -18,7 +18,6 @@ public class CreativeTabRegistry {
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> BURRET_TAB = CREATIVE_MODE_TABS.register("burret_tab", () -> CreativeModeTab.builder()
             .title(Component.translatable("itemGroup.burret"))
-//            .withTabsBefore(CreativeModeTabs.COMBAT)
             .icon(() -> BlockRegistry.BURRET.get().asItem().getDefaultInstance())
             .noScrollBar()
             .build());

@@ -1,6 +1,8 @@
 package net.modekh.burret.network.packets.server;
 
 import io.netty.buffer.ByteBuf;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
@@ -38,6 +40,9 @@ public record UpdateStatusSwitchPacket(boolean status) implements CustomPacketPa
             }
 
             serverPlayer.setData(AttachmentRegistry.STATUS, status);
+
+            serverPlayer.displayClientMessage(Component.translatable("message.burret.status",
+                    status ? "on" : "off").withStyle(ChatFormatting.GOLD), true);
         });
 
     }

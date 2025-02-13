@@ -13,13 +13,16 @@ public class KeyRegistry {
     public static final String CATEGORY = "Burret";
 
     public static final KeyMapping KEY_STATUS_SWITCH =
-            new KeyMapping("key.cheaks.status_switch", GLFW.GLFW_KEY_B, CATEGORY);
-//    public static final KeyMapping KEY_MODE_SWITCH =
-//            new KeyMapping("key.cheaks.mode_switch", GLFW.GLFW_KEY_B, CATEGORY);
+            new KeyMapping("key.cheaks.status_switch", GLFW.GLFW_KEY_G, CATEGORY);
+    public static final KeyMapping KEY_MODE_SWITCH =
+            new KeyMapping("key.cheaks.mode_switch", GLFW.GLFW_KEY_R, CATEGORY);
+    public static final KeyMapping KEY_MENU_OPEN =
+            new KeyMapping("key.cheaks.menu_open", GLFW.GLFW_KEY_G, CATEGORY);
 
     @SubscribeEvent
     public static void onKeybindingRegistry(RegisterKeyMappingsEvent event) {
         event.register(KEY_STATUS_SWITCH);
-//        event.register(KEY_MODE_SWITCH);
+        event.register(KEY_MODE_SWITCH);
+        event.register(KEY_MENU_OPEN);
     }
 }

@@ -5,6 +5,9 @@
 
   "item.burret.ballet": "Ballet",
 
+  "key.cheaks.menu_open": "Open Burret Menu",
+  "key.cheaks.mode_switch": "Switch the Burret Mode",
   "key.cheaks.status_switch": "Enable / Disable Burret",
+
   "message.burret.status": "Burret is now %s!"
 }
