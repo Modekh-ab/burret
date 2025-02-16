@@ -11,6 +11,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.modekh.burret.utils.Reference;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
+import org.jetbrains.annotations.NotNull;
 
 public class TargetMonsterPacket implements CustomPacketPayload {
     private final int projectileId;
@@ -46,7 +47,7 @@ public class TargetMonsterPacket implements CustomPacketPayload {
     }
 
     @Override
-    public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
+    public CustomPacketPayload.@NotNull Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
 

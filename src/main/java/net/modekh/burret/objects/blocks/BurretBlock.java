@@ -63,7 +63,6 @@ public class BurretBlock extends HorizontalDirectionalBlock implements EntityBlo
     @SuppressWarnings("unchecked")
     @Override
     public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> blockEntityType) {
-//        return EntityBlock.super.getTicker(level, state, blockEntityType);
         return (levelIn, pos, blockState, entity) -> BurretBlockEntity.tick(levelIn, pos, BlockRegistry.BURRET_ENTITY.get().getBlockEntity(levelIn, pos));
     }
 

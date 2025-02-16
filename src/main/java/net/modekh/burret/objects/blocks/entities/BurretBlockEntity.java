@@ -30,9 +30,7 @@ import java.util.Map;
 
 public class BurretBlockEntity extends BlockEntity {
 //    public BlockCapabilityCache<IItemHandler, @Nullable Direction> capCache;
-//
 //    private final ItemStackHandler stackHandler = new ItemStackHandler(2) {};
-//
 //    public Lazy<IItemHandler> lazyStackHandler = Lazy.of(() -> stackHandler);
 
     public static ItemStack burretStack = ItemStack.EMPTY;
@@ -54,12 +52,14 @@ public class BurretBlockEntity extends BlockEntity {
             return;
         }
 
-        if (!catalystStack.isEmpty() && burretEntity.radius <= 16.0F) {
-            burretEntity.radius += 0.5F;
+        float radius = burretEntity.getRadius();
+
+        if (!catalystStack.isEmpty() && radius <= 16.0F) {
+            burretEntity.setRadius(radius + 0.5F);
             catalystStack.shrink(1);
         }
 
-        // enable / disable the curret by the key
+        // enable / disable the burret by the key
         if (KeyRegistry.KEY_STATUS_SWITCH.consumeClick()) {
             boolean newStatus = !burretEntity.getData(AttachmentRegistry.STATUS);
 
@@ -71,7 +71,7 @@ public class BurretBlockEntity extends BlockEntity {
         if (burretEntity.getData(AttachmentRegistry.STATUS)) {
             ParticleUtils.drawCircle(level,
                     ParticleUtils.drawSpark(BURRET_AREA_COLOR, 0.46F, 1000, 0.76F),
-                    pos.getBottomCenter(), burretEntity.radius, 0.25F
+                    pos.getBottomCenter(), burretEntity.getRadius(), 0.25F
             );
         }
 
@@ -93,7 +93,7 @@ public class BurretBlockEntity extends BlockEntity {
             return;
         }
 
-        AABB sphereArea = new AABB(pos).inflate(burretEntity.radius);
+        AABB sphereArea = new AABB(pos).inflate(burretEntity.getRadius());
         List<Entity> entities = level.getEntities(null, sphereArea);
 
         if (entities.isEmpty()) {
@@ -111,34 +111,16 @@ public class BurretBlockEntity extends BlockEntity {
         }
 
         for (Entity entity : entities) {
-//            if (entity instanceof Player player && !player.getData(AttachmentRegistry.STATUS)) {
-//                break;
-//            }
+            if (entity instanceof Player player && !player.getData(AttachmentRegistry.STATUS)) {
+                break;
+            }
 
-            if (entity.distanceTo(entity) <= Math.pow(burretEntity.radius, 2)) {
-                if (entity instanceof Player player) {
-                    projectile.setOwner(player);
-                }
-
+            if (entity.distanceTo(entity) <= Math.pow(burretEntity.getRadius(), 2)) {
                 // shooting
                 if (entity instanceof Monster) {
                     if (((Monster) entity).isDeadOrDying()) {
                         return;
                     }
-
-//                    if (level instanceof ServerLevel) {
-//                        Vec3 motion = entity.position().subtract(pos.getCenter());
-//
-//                        projectile.setPos(pos.getCenter().add(0.0F, 1.4F, 0.0F));
-//                        projectile.setDeltaMovement(projectile.getDeltaMovement()
-//                                .add(motion.x(), (projectile instanceof Fireball) ? -1.0F : -0.4F, motion.z()));
-//
-////                        PacketDistributor.sendToPlayersTrackingEntity(projectile,
-////                                new TargetMonsterPacket(projectile.getId(), entity.getId()));
-//
-//                        level.addFreshEntity(projectile);
-//                        stack.shrink(1);
-//                    }
 
                     Vec3 motion = entity.position().subtract(pos.getCenter());
 
@@ -162,7 +144,7 @@ public class BurretBlockEntity extends BlockEntity {
 //        }
 
         tag.putInt("delay", this.getDelay());
-        tag.putFloat("radius", this.radius);
+        tag.putFloat("radius", this.getRadius());
 
         if (burretStack != null && !burretStack.isEmpty()) {
             tag.put("stack", burretStack.save(registries, new CompoundTag()));
@@ -174,8 +156,8 @@ public class BurretBlockEntity extends BlockEntity {
         super.loadAdditional(tag, registries);
 
 //        stackHandler.deserializeNBT(registries, tag.getCompound("stack"));
-        setDelay(tag.getInt("delay"));
-        setRadius(tag.getFloat("radius"));
+        this.setDelay(tag.getInt("delay"));
+        this.setRadius(tag.getFloat("radius"));
 
         burretStack = ItemStack.parseOptional(registries, tag.getCompound("stack"));
     }
